@@ -206,6 +206,7 @@
                                 $progressContainer.removeClass('d-none');
                                 $progressBar.css('width', percentComplete + '%').attr('aria-valuenow', percentComplete);
                             }
+                        $('#flashMessage').html('<div class="alert alert-info">Processing...</div>');
                         });
                         return xhr;
                     },
@@ -215,7 +216,7 @@
                     processData: false,
                     contentType: false,
                     success: function (response) {
-                        $('#flashMessage').html('<div class="alert alert-success">File successfully uploaded!</div>');
+                        $('#flashMessage').html('<div class="alert alert-success">Report downloaded!</div>');
                         $progressBar.css('width', '0%').attr('aria-valuenow', '0');
                         setTimeout(function () {
                             $progressContainer.addClass('d-none');
