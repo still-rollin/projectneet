@@ -399,7 +399,7 @@ def download_pdf():
         if os.path.isfile(file_path):
             print("found file:", file_path)
             # Use send_file to serve the file
-            return send_file(file_path, as_attachment=True)
+            return send_file(file_path)
         else:
             flash('File not found')
             return redirect('/')
