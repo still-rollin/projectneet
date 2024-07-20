@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Read the Report</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            background-color: #ececf2;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero {
+            background: rgba(10, 10, 14, 0.602);
+            color: #ffffff;
+            width: 100%;
+            text-align: center;
+            padding: 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: 0 0 40px 40px;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .card-header {
+            background: #63616a;
+            color: #ffffff;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .card-body {
+            padding: 40px;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+
+        footer a {
+            color: #0056b3;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="report-section container">
+        <h2>How to Read the Report</h2>
+        <p>The report provides a comprehensive analysis of the data. Here’s a breakdown of the statistical terms used in the report:</p>
+        
+        <div class="report-parameter">
+            <strong>Mean:</strong>
+            <p>The mean, or average, is the sum of all marks divided by the total number of marks. It gives a central value for the dataset. For example, if the average mark is high, it suggests generally good performance.</p>
+        </div>
+        <div class="report-parameter">
+            <strong>Median:</strong>
+            <p>The median is the middle value of the dataset when all marks are sorted in ascending order. If there’s an even number of marks, the median is the average of the two middle values. It provides a measure of central tendency that is less affected by extreme values (outliers) than the mean. Useful in skewed distributions.</p>
+        </div>
+        <div class="report-parameter">
+            <strong>Mode:</strong>
+            <p>The mode is the mark that appears most frequently in the dataset. There can be more than one mode if multiple values occur with the highest frequency. Helps identify the most common marks, which can be useful in understanding common performance levels.</p>
+        </div>
+        <div class="report-parameter">
+            <strong>Minimum:</strong>
+            <p>The minimum is the smallest mark in the dataset. Provides insight into the lowest performance level. Useful for identifying the range of marks and assessing the lower boundary of performance.</p>
+        </div>
+        <div class="report-parameter">
+            <strong>Maximum:</strong>
+            <p>The maximum is the largest mark in the dataset. Provides insight into the highest performance level. Useful for understanding the range and the top boundary of performance.</p>
+        </div>
+        <div class="report-parameter">
+            <strong>Percentiles:</strong>
+            <p>Percentiles divide the dataset into 100 equal parts. The n-th percentile is the value below which n% of the data falls.</p>
+            <ul>
+                <li><strong>10th Percentile:</strong> Indicates the value below which 10% of the data falls.</li>
+                <li><strong>25th Percentile (1st Quartile):</strong> The value below which 25% of the data falls.</li>
+                <li><strong>50th Percentile (Median):</strong> The middle value of the data, dividing it into two equal halves.</li>
+                <li><strong>75th Percentile (3rd Quartile):</strong> The value below which 75% of the data falls.</li>
+                <li><strong>90th Percentile:</strong> Indicates the value below which 90% of the data falls.</li>
+            </ul>
+        </div>
+        <div class="report-parameter">
+            <strong>Frequency Table:</strong>
+            <p>A table that shows how often each mark occurs in the dataset. Helps in understanding the distribution and commonality of specific marks. Identifies marks that are most and least frequent.</p>
+        </div>
+        <div class="report-parameter">
+            <strong>Histogram:</strong>
+            <p>A graphical representation showing the distribution of marks across different intervals (bins). Each bar represents the frequency of marks within a specific range. Helps visualize the distribution and spread of marks, revealing patterns or trends in performance.</p>
+        </div>
+        <div class="report-parameter">
+            <strong>Density Plot:</strong>
+            <p>A smooth curve that estimates the probability density function of the marks. It provides a continuous view of the distribution. Helps in understanding the distribution’s shape, identifying peaks, and evaluating the density of marks in different ranges.</p>
+        </div>
+        <div class="report-parameter">
+            <strong>Outliers:</strong>
+            <p>Marks that significantly differ from the majority of the data. Identified using Z-scores, which measure how many standard deviations a mark is from the mean. Marks with a Z-score greater than 2 or less than -2 are often considered outliers. Identifies unusual or exceptional cases that could indicate data entry errors or special cases. Important for understanding deviations and ensuring data quality.</p>
+        </div>
+        <div class="report-parameter">
+            <strong>Box Plot:</strong>
+            <p>A graphical representation of the distribution of the data based on quartiles. Displays the median, quartiles, and potential outliers. Helps summarize the distribution and identify the central tendency, spread, and any outliers in the data.</p>
+        </div>
+    </div>
+
+
+    <!-- Footer -->
+    <footer>
+        <p>Made by still_rollin - <a href="https://github.com/still-rollin" target="_blank"><i class="fab fa-github"></i> GitHub</a></p>
+    </footer>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

@@ -68,7 +68,22 @@
         }
 
         .btn-primary:hover {
-            background: #0056b3;
+            background: #004494;
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: #63616a;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #ffffff;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #4a484d;
             transform: scale(1.05);
         }
 
@@ -111,6 +126,11 @@
         footer a:hover {
             text-decoration: underline;
         }
+
+        .info-icon {
+            margin-left: 10px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 
@@ -130,6 +150,10 @@
                         <input type="file" class="form-control-file" id="file" name="file" accept=".pdf" required>
                     </div>
                     <button type="submit" class="btn btn-primary btn-lg btn-block">Upload</button>
+                    <a href="{{ url_for('static', filename='readpdf.html') }}" class="btn btn-secondary btn-lg btn-block mt-3">
+                        How to Read the Report
+                        <i class="fas fa-info-circle info-icon"></i>
+                    </a>
                 </form>
                 <div class="progress mt-4 d-none" id="progressContainer">
                     <div class="progress-bar bg-success" role="progressbar" id="progressBar" style="width: 0%;"
@@ -142,7 +166,7 @@
 
     <!-- Footer -->
     <footer>
-        <p>Made by still-rollin - <a href="https://github.com/still-rollin" target="_blank"><i class="fab fa-github"></i> GitHub</a></p>
+        <p>Made by still-rollin : <a href="https://github.com/still-rollin" target="_blank"><i class="fab fa-github"></i> GitHub</a></p>
     </footer>
 
     <!-- jQuery and Bootstrap JS -->
@@ -176,7 +200,7 @@
                     processData: false,
                     contentType: false,
                     success: function (response) {
-                        $('#flashMessage').html('<div class="alert alert-success">Report Generated!</div>');
+                        $('#flashMessage').html('<div class="alert alert-success">File successfully uploaded!</div>');
                         $progressBar.css('width', '0%').attr('aria-valuenow', '0');
                         setTimeout(function () {
                             $progressContainer.addClass('d-none');

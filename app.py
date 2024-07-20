@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 from PyPDF2 import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas
 from io import BytesIO
+import textwrap
 
 import fitz  # PyMuPDF
 import re
@@ -23,6 +24,37 @@ app.secret_key = 'your_secret_key'  # Replace with your actual secret key
 
 ALLOWED_EXTENSIONS = {'pdf'}
 
+
+def get_centre_info(text):
+     # Split text into lines
+    lines = text.strip().split('\n')
+    
+    # Initialize variables
+    centre_name = ''
+    centre_id = None
+    centre_line_index = None
+    
+    # Find the "Centre" line and its index
+    for i, line in enumerate(lines):
+        if 'Centre' in line:
+            centre_line_index = i
+            # Extract Centre ID
+            match = re.search(r'Centre\s*:\s*(\d+)', line)
+            if match:
+                centre_id = match.group(1)
+            break
+    
+    # If the Centre line was found, find the longest line after it
+    if centre_line_index is not None and centre_id:
+        # Get lines after the "Centre" line
+        lines_after_centre = lines[centre_line_index + 1:]
+        # Find the longest line
+        centre_name = max(lines_after_centre, key=lambda x: len(x.strip()), default='').strip()
+        return {'name':centre_name , 'id':centre_id }
+    else:
+        return 'Centre information not found'
+    
+
 def extract_data_from_pdf(pdf_path):
     # Open the PDF document
     doc = fitz.open(pdf_path)
@@ -34,6 +66,7 @@ def extract_data_from_pdf(pdf_path):
     for page_num in range(doc.page_count):
         page = doc.load_page(page_num)
         text = page.get_text("text")
+        centre_info = get_centre_info(text)
         lines = text.strip().split('\n')
         
         # Filter out lines that contain specific words or letters
@@ -59,7 +92,8 @@ def extract_data_from_pdf(pdf_path):
     # Convert the rows into a pandas DataFrame
     df = pd.DataFrame(rows, columns=['Serial Number', 'Marks'])
 
-    return df
+    return df, centre_info
+
 
 def calculate_unobtainable_scores():
     max_questions = 180
@@ -72,11 +106,45 @@ def calculate_unobtainable_scores():
     
     return set([717, 718, 719])
 
-def analyze_and_save_to_pdf(df, pdf_filename):
+disclaimer_text = (
+    "Disclaimer: The information presented in this document is for informational purposes only.\n "
+    "We do not have any legal obligation for the accuracy of these results and this document is not legally binding."
+)
+ 
+def add_disclaimer(fig):
+    """Add disclaimer text to the bottom of the figure."""
+    fig.text(0.5, 0.02, 
+            disclaimer_text,
+            ha='center', va='center', fontsize=8, fontweight='light', color='grey',
+            bbox=dict(facecolor='lightgrey', alpha=0.5, boxstyle='round,pad=0.5'))
+
+def analyze_and_save_to_pdf(df, centre_info, pdf_filename):
+    # Disclaimer Text - Wrapped
+   
     with PdfPages(pdf_filename) as pdf:
-        # Descriptive statistics
         
-        # Descriptive statistics
+        fig, ax = plt.subplots(figsize=(10, 6))
+        
+        ax.text(0.5, 0.8, 'NEET UG 2024 Centre Score Distribution Analysis', 
+                fontsize=20, fontweight='bold', ha='center', va='center')
+
+        centre_name = centre_info["name"]
+        wrapped_name = textwrap.fill(f'{centre_name}', width=50)
+        wrapped_id = f'Centre ID: {centre_info["id"]}'
+
+        # Display wrapped text with styled boxes and adjusted positions
+        ax.text(0.5, 0.35, wrapped_id, fontsize=16, ha='center', va='center',
+                bbox=dict(facecolor='lightgrey', edgecolor='black', boxstyle='round,pad=0.5'))
+        ax.text(0.5, 0.60, wrapped_name, fontsize=16, ha='center', va='center',
+                bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='round,pad=0.5'))
+
+        ax.axis('off')
+
+        # Save the page
+        pdf.savefig(fig)
+        plt.close(fig)
+        
+        # Summary Table
         mean = round(df['Marks'].mean(), 2)
         median = df['Marks'].median()
         mode = df['Marks'].mode()[0]
@@ -84,68 +152,124 @@ def analyze_and_save_to_pdf(df, pdf_filename):
         max_marks = df['Marks'].max()
         percentiles = np.percentile(df['Marks'], [10, 25, 50, 75, 90])
         
-        # Summary Table
         summary_data = {
             'Statistic': ['Mean', 'Median', 'Mode', 'Minimum', 'Maximum', '10th Percentile', '25th Percentile', '50th Percentile', '75th Percentile', '90th Percentile'],
             'Value': [mean, median, mode, min_marks, max_marks, percentiles[0], percentiles[1], percentiles[2], percentiles[3], percentiles[4]]
         }
         summary_df = pd.DataFrame(summary_data)
         
-        # Modern Table Plot
-        plt.figure(figsize=(12, 4))
+        plt.figure(figsize=(10, 6))
         plt.subplot(111, frame_on=False)
+        
         table = plt.table(cellText=summary_df.values,
                         colLabels=summary_df.columns,
                         cellLoc='center',
                         loc='center',
-                        bbox=[0, 0, 1, 1])
+                        bbox=[0, 0.35, 1, 0.6])  # Adjusted bbox for space
+
+        # Style the table
+        for i, (stat, value) in enumerate(summary_df.values):
+            if stat == 'Minimum':
+                table[(i + 1, 0)].set_text_props(color='red')  # Set the Minimum text color to red
+                table[(i + 1, 1)].set_text_props(color='red')
+            elif stat == 'Maximum':
+                table[(i + 1, 0)].set_text_props(color='green')  # Set the Maximum text color to green
+                table[(i + 1, 1)].set_text_props(color='green')
+            elif 'Percentile' in stat:
+                table[(i + 1, 0)].set_text_props(color='blue')  # Set Percentiles text color to grey
+                table[(i + 1, 1)].set_text_props(color='blue')
+            else:
+                table[(i + 1, 0)].set_text_props(weight='bold')  # Set the text for others to bold
+                table[(i + 1, 1)].set_text_props(weight='bold')
+
+        # Set font size and scale
         table.auto_set_font_size(False)
         table.set_fontsize(12)
         table.scale(1.2, 1.2)
+
         plt.axis('off')
         plt.title('Summary Statistics', pad=12, fontsize=16, fontweight='bold')
+        
+        # Add Disclaimer
+        add_disclaimer(plt.gcf())
+        
+        # Adjust layout
+        plt.subplots_adjust(bottom=0.15)  # Adjust bottom margin to fit disclaimer
         pdf.savefig()
         plt.close()
 
         # Frequency Table of Specific Marks
         highest_marks = df['Marks'].max()
         lowest_marks = df['Marks'].min()
-        most_frequent_marks = df['Marks'].mode()[0]
+        most_frequent_marks = df['Marks'].mode()[:5]
         
-        freq_specific_marks = df['Marks'].value_counts().loc[[highest_marks, lowest_marks, most_frequent_marks]].reset_index()
+        freq_specific_marks = df['Marks'].value_counts().loc[[lowest_marks, highest_marks, *most_frequent_marks]].reset_index()
         freq_specific_marks.columns = ['Marks', 'Frequency']
         
-        plt.figure(figsize=(10, 4))
+        plt.figure(figsize=(10, 6))
         plt.subplot(111, frame_on=False)
         table = plt.table(cellText=freq_specific_marks.values,
-                        colLabels=freq_specific_marks.columns,
-                        cellLoc='center',
-                        loc='center',
-                        bbox=[0, 0, 1, 1])
+                  colLabels=freq_specific_marks.columns,
+                  cellLoc='center',
+                  loc='center',
+                  bbox=[0, 0.35, 1, 0.6])  # Adjusted bbox for space
+
+        # Style the table
+        for i, (mark, freq) in enumerate(freq_specific_marks.values):
+            if mark == highest_marks:
+                table[(i + 1, 0)].set_text_props(color='green')  # Set the highest mark text color to green
+                table[(i + 1, 1)].set_text_props(color='green')
+            elif mark == lowest_marks:
+                table[(i + 1, 0)].set_text_props(color='red')  # Set the lowest mark text color to red
+                table[(i + 1, 1)].set_text_props(color='red')
+            else:
+                table[(i + 1, 0)].set_text_props(weight='bold')  # Set the text for others to bold
+                table[(i + 1, 1)].set_text_props(weight='bold')
+
+        # Set font size and scale
         table.auto_set_font_size(False)
         table.set_fontsize(12)
         table.scale(1.2, 1.2)
+
         plt.axis('off')
-        plt.title('Frequency of Highest, Lowest, and Most Frequent Marks', pad=12, fontsize=16, fontweight='bold')
+        plt.title('Frequency of Highest, Lowest, and Top 5 Most Frequent Marks', pad=12, fontsize=16, fontweight='bold')
+        
+        # Add Disclaimer
+        add_disclaimer(plt.gcf())
+        
+        # Adjust layout
+        plt.subplots_adjust(bottom=0.15)  # Adjust bottom margin to fit disclaimer
         pdf.savefig()
         plt.close()
 
         # Histogram
-        plt.figure(figsize=(10, 6))
-        plt.hist(df['Marks'], bins=60, edgecolor='dodgerblue', color='lightblue')
+        plt.figure(figsize=(10, 7))
+        plt.hist(df['Marks'], bins=60, edgecolor='dodgerblue', color='lightgreen')
         plt.title('Histogram of Marks', fontsize=16, fontweight='bold')
         plt.xlabel('Marks', fontsize=14)
         plt.ylabel('Frequency', fontsize=14)
         plt.grid(True, linestyle='--', alpha=0.7)
+        
+        # Add Disclaimer
+        add_disclaimer(plt.gcf())
+        
+        # Adjust layout
+        plt.subplots_adjust(bottom=0.15)  # Adjust bottom margin to fit disclaimer
         pdf.savefig()
         plt.close()
         
         # Density Plot
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(10, 7))
         sns.kdeplot(df['Marks'], shade=True, color='darkorange', linewidth=2)
         plt.title('Density Plot of Marks', fontsize=16, fontweight='bold')
         plt.xlabel('Marks', fontsize=14)
         plt.grid(True, linestyle='--', alpha=0.7)
+        
+        # Add Disclaimer
+        add_disclaimer(plt.gcf())
+        
+        # Adjust layout
+        plt.subplots_adjust(bottom=0.15)  # Adjust bottom margin to fit disclaimer
         pdf.savefig()
         plt.close()
 
@@ -155,35 +279,49 @@ def analyze_and_save_to_pdf(df, pdf_filename):
         
         plt.figure(figsize=(10, 6))
         plt.subplot(111, frame_on=False)
-        table = plt.table(cellText=outliers[['Serial Number', 'Marks']].values,
+        table = plt.table(cellText=outliers[['Serial Number', 'Marks']].values[:12],
                         colLabels=['Serial Number', 'Marks'],
                         cellLoc='center',
                         loc='center',
-                        bbox=[0, 0, 1, 1])
+                        bbox=[0, 0.35, 1, 0.6])  # Adjusted bbox for space
         table.auto_set_font_size(False)
         table.set_fontsize(12)
         table.scale(1.2, 1.2)
         plt.axis('off')
-        plt.title('Outliers Table', pad=12, fontsize=16, fontweight='bold')
+        plt.title('Outlier scores with highest variance (upto top 12)', pad=12, fontsize=16, fontweight='bold')
+        
+        # Add Disclaimer
+        add_disclaimer(plt.gcf())
+        
+        # Adjust layout
+        plt.subplots_adjust(bottom=0.15)  # Adjust bottom margin to fit disclaimer
         pdf.savefig()
         plt.close()
         
         # Box Plot with Outliers Highlighted
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(10, 7))
         sns.set(style='whitegrid')
-        sns.boxplot(x=df['Marks'], color='skyblue')
+        sns.boxplot(x=df['Marks'], color='dodgerblue')
         plt.scatter(outliers['Marks'], np.ones(len(outliers)), color='red', label='Outliers', zorder=5)
         plt.title('Box Plot of Marks with Outliers Highlighted', fontsize=16, fontweight='bold')
         plt.xlabel('Marks', fontsize=14)
         plt.grid(True, linestyle='--', alpha=0.7)
         plt.legend()
+        
+        # Add Disclaimer
+        add_disclaimer(plt.gcf())
+        
+        # Adjust layout
+        plt.subplots_adjust(bottom=0.15)  # Adjust bottom margin to fit disclaimer
         pdf.savefig()
         plt.close()
 
     print(f"PDF saved as {pdf_filename}")
 
+
 def generate_summary(input_pdf_file, output_pdf_file):
-    return analyze_and_save_to_pdf(extract_data_from_pdf(input_pdf_file), output_pdf_file)
+    df, centre_info = extract_data_from_pdf(input_pdf_file)
+    return analyze_and_save_to_pdf(df, centre_info, output_pdf_file)
 
 @app.route('/')
 def upload():
@@ -203,6 +341,10 @@ def process_pdf(input_pdf_path):
         generate_summary(input_pdf_file=input_pdf_path, output_pdf_file=output_pdf_path)
 
     return output_pdf_path
+
+@app.route('/readpdf')
+def readpdf():
+    return render_template('readpdf.html')
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
