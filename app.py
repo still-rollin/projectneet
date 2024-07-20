@@ -146,11 +146,12 @@ def analyze_and_save_to_pdf(df, centre_info, pdf_filename):
         
         # Summary Table
         mean = round(df['Marks'].mean(), 2)
-        median = df['Marks'].median()
+        median = round(df['Marks'].median(), 2)
         mode = df['Marks'].mode()[0]
         min_marks = df['Marks'].min()
         max_marks = df['Marks'].max()
         percentiles = np.percentile(df['Marks'], [10, 25, 50, 75, 90])
+        percentiles = [round(i) for i in percentiles]
         
         summary_data = {
             'Statistic': ['Mean', 'Median', 'Mode', 'Minimum', 'Maximum', '10th Percentile', '25th Percentile', '50th Percentile', '75th Percentile', '90th Percentile'],
@@ -159,6 +160,7 @@ def analyze_and_save_to_pdf(df, centre_info, pdf_filename):
         summary_df = pd.DataFrame(summary_data)
         
         plt.figure(figsize=(10, 6))
+        sns.set(style='whitegrid')
         plt.subplot(111, frame_on=False)
         
         table = plt.table(cellText=summary_df.values,
@@ -201,12 +203,23 @@ def analyze_and_save_to_pdf(df, centre_info, pdf_filename):
         # Frequency Table of Specific Marks
         highest_marks = df['Marks'].max()
         lowest_marks = df['Marks'].min()
-        most_frequent_marks = df['Marks'].mode()[:5]
-        
-        freq_specific_marks = df['Marks'].value_counts().loc[[lowest_marks, highest_marks, *most_frequent_marks]].reset_index()
+        mark_frequencies = df['Marks'].value_counts()
+
+        # Get the top 5 most frequent marks
+        top_5_frequent_marks = mark_frequencies.head(5).index.tolist()
+
+        # Combine the highest, lowest, and most frequent marks into one list
+        marks_of_interest = [highest_marks, lowest_marks] + top_5_frequent_marks
+
+        # Get the frequency of these specific marks
+        freq_specific_marks = mark_frequencies.reindex(marks_of_interest, fill_value=0).reset_index()
         freq_specific_marks.columns = ['Marks', 'Frequency']
+
+        # Remove NaN values in case there were fewer than 5 most frequent marks
+        freq_specific_marks = freq_specific_marks.dropna()
         
         plt.figure(figsize=(10, 6))
+        sns.set(style='whitegrid')
         plt.subplot(111, frame_on=False)
         table = plt.table(cellText=freq_specific_marks.values,
                   colLabels=freq_specific_marks.columns,
@@ -222,9 +235,8 @@ def analyze_and_save_to_pdf(df, centre_info, pdf_filename):
             elif mark == lowest_marks:
                 table[(i + 1, 0)].set_text_props(color='red')  # Set the lowest mark text color to red
                 table[(i + 1, 1)].set_text_props(color='red')
-            else:
-                table[(i + 1, 0)].set_text_props(weight='bold')  # Set the text for others to bold
-                table[(i + 1, 1)].set_text_props(weight='bold')
+            table[(i + 1, 0)].set_text_props(weight='bold')  # Set the text for others to bold
+            table[(i + 1, 1)].set_text_props(weight='bold')
 
         # Set font size and scale
         table.auto_set_font_size(False)
@@ -244,8 +256,9 @@ def analyze_and_save_to_pdf(df, centre_info, pdf_filename):
 
         # Histogram
         plt.figure(figsize=(10, 7))
+        sns.set(style='whitegrid')
         plt.hist(df['Marks'], bins=60, edgecolor='dodgerblue', color='lightgreen')
-        plt.title('Histogram of Marks', fontsize=16, fontweight='bold')
+        plt.title('Distribution of Marks', fontsize=16, fontweight='bold')
         plt.xlabel('Marks', fontsize=14)
         plt.ylabel('Frequency', fontsize=14)
         plt.grid(True, linestyle='--', alpha=0.7)
@@ -260,8 +273,9 @@ def analyze_and_save_to_pdf(df, centre_info, pdf_filename):
         
         # Density Plot
         plt.figure(figsize=(10, 7))
+        sns.set(style='whitegrid')
         sns.kdeplot(df['Marks'], shade=True, color='darkorange', linewidth=2)
-        plt.title('Density Plot of Marks', fontsize=16, fontweight='bold')
+        plt.title('Density of Marks', fontsize=16, fontweight='bold')
         plt.xlabel('Marks', fontsize=14)
         plt.grid(True, linestyle='--', alpha=0.7)
         
@@ -276,8 +290,10 @@ def analyze_and_save_to_pdf(df, centre_info, pdf_filename):
         # Outliers Table
         df['Z-Score'] = (df['Marks'] - mean) / df['Marks'].std()
         outliers = df[np.abs(df['Z-Score']) > 2]
+        outliers = outliers.sort_values(by='Marks', ascending=False)
         
         plt.figure(figsize=(10, 6))
+        sns.set(style='whitegrid')
         plt.subplot(111, frame_on=False)
         table = plt.table(cellText=outliers[['Serial Number', 'Marks']].values[:12],
                         colLabels=['Serial Number', 'Marks'],
@@ -303,7 +319,7 @@ def analyze_and_save_to_pdf(df, centre_info, pdf_filename):
         sns.set(style='whitegrid')
         sns.boxplot(x=df['Marks'], color='dodgerblue')
         plt.scatter(outliers['Marks'], np.ones(len(outliers)), color='red', label='Outliers', zorder=5)
-        plt.title('Box Plot of Marks with Outliers Highlighted', fontsize=16, fontweight='bold')
+        plt.title('Marks with Outliers Highlighted', fontsize=16, fontweight='bold')
         plt.xlabel('Marks', fontsize=14)
         plt.grid(True, linestyle='--', alpha=0.7)
         plt.legend()
