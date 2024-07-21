@@ -350,7 +350,12 @@ def process_pdf(input_pdf_path):
     centre_code = input_pdf_path.split('/')[-1].split('.')[0]
     output_name = f"{centre_code}_centre_analysis_neetug24.pdf"
     output_pdf_path = os.path.join(app.config['PROCESSED_FOLDER'], output_name)
-    print(output_pdf_path)
+    # print(output_pdf_path)
+     # Check if the output file already exists
+    if os.path.isfile(output_pdf_path):
+        # print("Output file already exists. Skipping processing.")
+        return output_pdf_path
+    
     # Example PDF processing (you can replace this with your actual processing logic)
     with open(input_pdf_path, 'rb') as input_pdf_file:
         reader = PdfReader(input_pdf_file)
