@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
-            background-color: #ececf2;
+            background-color: #f7f8fc;
             font-family: 'Roboto', sans-serif;
             margin: 0;
             height: 100vh;
@@ -23,18 +23,18 @@
         }
 
         .hero {
-            background: rgba(10, 10, 14, 0.602);
+            background: #4a47a3;
             color: #ffffff;
             width: 100%;
             text-align: center;
-            padding: 20px;
+            padding: 30px;
             position: absolute;
             top: 0;
             left: 0;
-            border-radius: 0 0 40px 40px;
+            /* border-radius: 0 0 30px 30px; */
         }
 
-        .hero h1 {
+        .hero h2 {
             font-size: 2.5rem;
             font-weight: 700;
             margin: 0;
@@ -42,13 +42,13 @@
 
         .card {
             border-radius: 20px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
             border: none;
-            background: rgba(255, 255, 255, 0.9);
+            background: #ffffff;
         }
 
         .card-header {
-            background: #63616a;
+            background: #343a40;
             color: #ffffff;
             border-radius: 20px 20px 0 0;
             text-align: center;
@@ -60,7 +60,7 @@
         }
 
         .btn-primary {
-            background: #0056b3;
+            background: #007bff;
             border: none;
             border-radius: 25px;
             padding: 10px 20px;
@@ -69,12 +69,12 @@
         }
 
         .btn-primary:hover {
-            background: #004494;
+            background: #0056b3;
             transform: scale(1.05);
         }
 
         .btn-secondary {
-            background: #63616a;
+            background: #6c757d;
             border: none;
             border-radius: 25px;
             padding: 10px 20px;
@@ -84,7 +84,7 @@
         }
 
         .btn-secondary:hover {
-            background: #4a484d;
+            background: #5a6268;
             transform: scale(1.05);
         }
 
@@ -120,7 +120,7 @@
         }
 
         footer a {
-            color: #0056b3;
+            color: #007bff;
             text-decoration: none;
         }
 
@@ -141,21 +141,22 @@
 
 <body>
     <div class="hero">
-        <h2>Detailed Analysis of NEET Centre-Wise Scores</h2>
+        <h2>Analysis of NEET Centerwise Scores</h2>
     </div>
     <div class="container">
         <div class="card mx-auto" style="max-width: 800px;">
             <div class="card-header">
-                <h5 class="mb-0">Upload Your Centre PDF for Detailed Analysis</h5>
+                <h5 class="mb-0">Upload Your Center PDF for Detailed Analysis</h5>
             </div>
             <div class="card-body">
                 <form id="uploadForm" enctype="multipart/form-data" method="post">
                     <div class="form-group">
-                        <label for="file" class="font-weight-bold">Select PDF File:</label>
+                        <label for="file" class="font-weight-bold">Center Score Result (PDF):</label>
                         <input type="file" class="form-control-file" id="file" name="file" accept=".pdf" required>
                     </div>
                     <button type="submit" class="btn btn-primary btn-lg btn-block">Upload</button>
-                    <a href="{{ url_for('static', filename='readpdf.html') }}" class="btn btn-secondary btn-lg btn-block mt-3">
+                    <a href="{{ url_for('static', filename='readpdf.html') }}"
+                        class="btn btn-secondary btn-lg btn-block mt-3">
                         How to Read the Report
                         <i class="fas fa-info-circle info-icon"></i>
                     </a>
@@ -171,74 +172,81 @@
 
     <!-- Footer -->
     <footer>
-        <p>Made by still-rollin : <a href="https://github.com/still-rollin" target="_blank"><i class="fab fa-github"></i> GitHub</a></p>
+        <p>Made by still-rollin : <a href="https://github.com/still-rollin" target="_blank"><i
+                    class="fab fa-github"></i> GitHub</a></p>
     </footer>
 
-    <!-- jQuery and Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LTRC3LBF04"></script>
-        <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
+</body>
 
-        gtag('config', 'G-LTRC3LBF04');
-        </script>
-    <script>
-        
-        $(document).ready(function () {
-            $('#uploadForm').on('submit', function (e) {
-                e.preventDefault();
+<!-- jQuery and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LTRC3LBF04"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
 
-                var formData = new FormData(this);
-                var $progressContainer = $('#progressContainer');
-                var $progressBar = $('#progressBar');
+    gtag('config', 'G-LTRC3LBF04');
+</script>
+<script>
 
-                $.ajax({
-                    xhr: function () {
-                        var xhr = new XMLHttpRequest();
-                        xhr.upload.addEventListener('progress', function (e) {
-                            if (e.lengthComputable) {
-                                var percentComplete = Math.round((e.loaded / e.total) * 100);
-                                $progressContainer.removeClass('d-none');
-                                $progressBar.css('width', percentComplete + '%').attr('aria-valuenow', percentComplete);
-                            }
-                        $('#flashMessage').html('<div class="alert alert-info">Processing...</div>');
-                        });
-                        return xhr;
-                    },
-                    type: 'POST',
-                    url: '/upload',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function (response) {
-                        $progressContainer.addClass('d-none');
-                        $('#flashMessage').html('<div class="alert alert-success">Report generated!</div>');
-                        $progressBar.css('width', '0%').attr('aria-valuenow', '0');
-                        setTimeout(function () {
-                            $progressContainer.addClass('d-none');
-                        }, 2000);
+    $(document).ready(function () {
+        $('#uploadForm').on('submit', function (e) {
+            e.preventDefault();
 
-                        // Open the PDF URL in a new tab
-                        var pdfUrl = response.url;
-                        if (pdfUrl) {
-                            window.open(pdfUrl, '_blank');
-                        } else {
-                            $('#flashMessage').html('<div class="alert alert-warning">No PDF URL found.</div>');
+            var formData = new FormData(this);
+            var $progressContainer = $('#progressContainer');
+            var $progressBar = $('#progressBar');
+
+            $.ajax({
+                xhr: function () {
+                    var xhr = new XMLHttpRequest();
+                    xhr.upload.addEventListener('progress', function (e) {
+                        if (e.lengthComputable) {
+                            var percentComplete = Math.round((e.loaded / e.total) * 100);
+                            $progressContainer.removeClass('d-none');
+                            $progressBar.css('width', percentComplete + '%').attr('aria-valuenow', percentComplete);
                         }
-                    },
-                    error: function () {
-                        $('#flashMessage').html('<div class="alert alert-danger">Error uploading file.</div>');
-                        $progressBar.css('width', '0%').attr('aria-valuenow', '0');
+                        $('#flashMessage').html('<div class="alert alert-info">Processing...</div>');
+                    });
+                    return xhr;
+                },
+                type: 'POST',
+                url: '/upload',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $progressContainer.addClass('d-none');
+                    $('#flashMessage').html('<div class="alert alert-success">Report generated!</div>');
+                    $progressBar.css('width', '0%').attr('aria-valuenow', '0');
+                    setTimeout(function () {
+                        $progressContainer.addClass('d-none');
+                    }, 2000);
+
+                    // Open the PDF URL in a new tab
+                    var pdfUrl = response.url;
+                    if (pdfUrl) {
+                        window.open(pdfUrl, '_blank');
+                    } else {
+                        $('#flashMessage').html('<div class="alert alert-warning">No PDF URL found.</div>');
                     }
-                });
+                },
+                error: function () {
+                    $('#flashMessage').html('<div class="alert alert-danger">Error uploading file.</div>');
+                    $progressBar.css('width', '0%').attr('aria-valuenow', '0');
+                }
             });
         });
-    </script>
+    });
+</script>
 </body>
 
 </html>
